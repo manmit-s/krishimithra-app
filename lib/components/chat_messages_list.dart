@@ -57,6 +57,7 @@ class ChatMessagesList extends StatelessWidget {
           message: message.content,
           isFromUser: message.isFromUser,
           timestamp: message.timestamp,
+          imagePath: message.imagePath,
         );
       },
     );
@@ -69,21 +70,24 @@ class ChatMessage {
   final String content;
   final bool isFromUser;
   final DateTime timestamp;
+  final String? imagePath; // Added image path support
 
   ChatMessage({
     required this.id,
     required this.content,
     required this.isFromUser,
     required this.timestamp,
+    this.imagePath, // Optional image path
   });
 
   // Factory constructor for creating a user message
-  factory ChatMessage.user(String content) {
+  factory ChatMessage.user(String content, {String? imagePath}) {
     return ChatMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       content: content,
       isFromUser: true,
       timestamp: DateTime.now(),
+      imagePath: imagePath,
     );
   }
 

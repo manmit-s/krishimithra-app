@@ -42,12 +42,12 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-  void _sendMessage(String content) async {
-    if (content.trim().isEmpty) return;
+  void _sendMessage(String content, {String? imagePath}) async {
+    if (content.trim().isEmpty && imagePath == null) return;
 
     // Add user message
     setState(() {
-      _messages.add(ChatMessage.user(content));
+      _messages.add(ChatMessage.user(content, imagePath: imagePath));
       _isLoading = true;
     });
 
@@ -55,15 +55,23 @@ class _ChatPageState extends State<ChatPage> {
     _scrollToBottom();
 
     // Simulate bot response (replace this with actual API call later)
-    await _simulateBotResponse(content);
+    await _simulateBotResponse(content, imagePath);
   }
 
-  Future<void> _simulateBotResponse(String userMessage) async {
+  Future<void> _simulateBotResponse(
+    String userMessage,
+    String? imagePath,
+  ) async {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1, milliseconds: 500));
 
-    // Generate a mock response based on user input
-    final botResponse = _generateMockResponse(userMessage);
+    // Generate a mock response based on user input and image
+    String botResponse;
+    if (imagePath != null) {
+      botResponse = _generateImageResponse(userMessage);
+    } else {
+      botResponse = _generateMockResponse(userMessage);
+    }
 
     setState(() {
       _messages.add(ChatMessage.bot(botResponse));
@@ -72,6 +80,22 @@ class _ChatPageState extends State<ChatPage> {
 
     // Scroll to bottom after response
     _scrollToBottom();
+  }
+
+  String _generateImageResponse(String userMessage) {
+    final languageProvider = Provider.of<LanguageProvider>(
+      context,
+      listen: false,
+    );
+
+    switch (languageProvider.currentLanguage) {
+      case AppLanguage.english:
+        return 'I can see the image you\'ve shared! Based on what I observe, I can help you with farming advice. ${userMessage.isNotEmpty ? "Regarding your question: $userMessage - " : ""}Please let me know what specific information you need about this image.';
+      case AppLanguage.hindi:
+        return 'मैं आपकी साझा की गई तस्वीर देख सकता हूं! जो मैं देख रहा हूं उसके आधार पर, मैं आपको कृषि सलाह दे सकता हूं। ${userMessage.isNotEmpty ? "आपके प्रश्न के बारे में: $userMessage - " : ""}कृपया बताएं कि आपको इस तस्वीर के बारे में क्या जानकारी चाहिए।';
+      case AppLanguage.malayalam:
+        return 'നിങ്ങൾ പങ്കിട്ട ചിത്രം എനിക്ക് കാണാൻ കഴിയും! ഞാൻ നിരീക്ഷിക്കുന്നതിന്റെ അടിസ്ഥാനത്തിൽ, എനിക്ക് നിങ്ങളെ കൃഷി ഉപദേശത്തിൽ സഹായിക്കാൻ കഴിയും। ${userMessage.isNotEmpty ? "നിങ്ങളുടെ ചോദ്യത്തെ കുറിച്ച്: $userMessage - " : ""}ഈ ചിത്രത്തെ കുറിച്ച് നിങ്ങൾക്ക് എന്ത് വിവരങ്ങൾ വേണമെന്ന് ദയവായി എന്നെ അറിയിക്കൂ।';
+    }
   }
 
   String _generateMockResponse(String userMessage) {

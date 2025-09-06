@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
 
 class MessageBubble extends StatelessWidget {
   final String message;
   final bool isFromUser;
   final DateTime timestamp;
+  final String? imagePath; // Added image path support
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.isFromUser,
     required this.timestamp,
+    this.imagePath, // Optional image path
   });
 
   @override
@@ -64,16 +67,43 @@ class MessageBubble extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    message,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: isFromUser
-                          ? Theme.of(context).colorScheme.onPrimary
-                          : Theme.of(context).colorScheme.onSurface,
-                      height: 1.4,
+                  // Display image if available
+                  if (imagePath != null) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.file(
+                        File(imagePath!),
+                        width: 200,
+                        height: 200,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 200,
+                            height: 100,
+                            color: Colors.grey.shade300,
+                            child: const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
+                              size: 40,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                    if (message.isNotEmpty) const SizedBox(height: 8),
+                  ],
+                  // Display text message if not empty
+                  if (message.isNotEmpty)
+                    Text(
+                      message,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: isFromUser
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface,
+                        height: 1.4,
+                      ),
+                    ),
                   const SizedBox(height: 4),
                   Text(
                     _formatTime(timestamp),
