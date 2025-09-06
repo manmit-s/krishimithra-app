@@ -57,6 +57,7 @@ class SignUpPage extends StatelessWidget {
                             style: GoogleFonts.poppins(
                               fontSize: 45,
                               fontWeight: FontWeight.w700,
+                              color: Colors.black87,
                             ),
                           ),
                         ),
@@ -68,6 +69,7 @@ class SignUpPage extends StatelessWidget {
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
+                              color: Colors.black87,
                             ),
                           ),
                         ),
@@ -109,7 +111,10 @@ class SignUpPage extends StatelessWidget {
                               ),
                             ),
                             SizedBox(width: 4),
-                            Text("Or continue with"),
+                            Text(
+                              "Or continue with",
+                              style: TextStyle(color: Colors.black87),
+                            ),
                             SizedBox(width: 4),
                             Expanded(
                               child: Divider(
