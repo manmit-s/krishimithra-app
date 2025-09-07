@@ -42,9 +42,9 @@ class GetStartedPage extends StatelessWidget {
                       ),
                     ),
                     Image.asset(
-                      "assets/images/Logo.png",
-                      width: 150,
-                      height: 150,
+                      "assets/images/logo.png",
+                      width: 80,
+                      height: 80,
                     ),
                   ],
                 ),
@@ -52,7 +52,7 @@ class GetStartedPage extends StatelessWidget {
               const SizedBox(height: 32),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                child: Text(
+                child: SelectableText(
                   '"Digital Krishi Officer"—always available, always learning, and always farmer-first.',
                   style: GoogleFonts.poppins(
                     fontSize: 16,
