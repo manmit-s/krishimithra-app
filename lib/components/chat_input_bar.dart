@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import '../providers/language_provider.dart';
+import '../services/api_service.dart';
 
 class ChatInputBar extends StatefulWidget {
   final Function(String, {String? imagePath}) onSendMessage;

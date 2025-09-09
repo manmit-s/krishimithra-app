@@ -43,8 +43,8 @@ class GetStartedPage extends StatelessWidget {
                     ),
                     Image.asset(
                       "assets/images/logo.png",
-                      width: 80,
-                      height: 80,
+                      width: 100,
+                      height: 100,
                     ),
                   ],
                 ),

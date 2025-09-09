@@ -7,6 +7,7 @@ import '../components/custom_widgets.dart';
 import '../components/language_selector.dart';
 import '../theme/theme_provider.dart';
 import '../providers/language_provider.dart';
+import '../services/api_service.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -54,70 +55,63 @@ class _ChatPageState extends State<ChatPage> {
     // Scroll to bottom
     _scrollToBottom();
 
-    // Simulate bot response (replace this with actual API call later)
-    await _simulateBotResponse(content, imagePath);
+    // Call actual API
+    await _sendToKrishiMithra(content, imagePath);
   }
 
-  Future<void> _simulateBotResponse(
+  Future<void> _sendToKrishiMithra(
     String userMessage,
     String? imagePath,
   ) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1, milliseconds: 500));
+    try {
+      String botResponse;
 
-    // Generate a mock response based on user input and image
-    String botResponse;
-    if (imagePath != null) {
-      botResponse = _generateImageResponse(userMessage);
-    } else {
-      botResponse = _generateMockResponse(userMessage);
+      if (imagePath != null) {
+        // Send message with image to API
+        botResponse = await ApiService.sendMessageWithImage(
+          userMessage,
+          imagePath,
+        );
+      } else {
+        // Send text message to API
+        botResponse = await ApiService.sendMessage(userMessage);
+      }
+
+      setState(() {
+        _messages.add(ChatMessage.bot(botResponse));
+        _isLoading = false;
+      });
+    } catch (e) {
+      // Handle errors gracefully
+      final languageProvider = Provider.of<LanguageProvider>(
+        context,
+        listen: false,
+      );
+
+      String errorMessage;
+      switch (languageProvider.currentLanguage) {
+        case AppLanguage.english:
+          errorMessage =
+              'Sorry, I\'m having trouble connecting to KrishiMithra. Please check your internet connection and try again.';
+          break;
+        case AppLanguage.hindi:
+          errorMessage =
+              'माफ़ करें, मुझे कृषिमित्र से जुड़ने में समस्या हो रही है। कृपया अपना इंटरनेट कनेक्शन जांचें और फिर से कोशिश करें।';
+          break;
+        case AppLanguage.malayalam:
+          errorMessage =
+              'ക്ഷമിക്കണം, കൃഷിമിത്രയുമായി ബന്ധപ്പെടുന്നതിൽ എനിക്ക് പ്രശ്നമുണ്ട്. ദയവായി നിങ്ങളുടെ ഇന്റർനെറ്റ് കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കൂ।';
+          break;
+      }
+
+      setState(() {
+        _messages.add(ChatMessage.bot(errorMessage));
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _messages.add(ChatMessage.bot(botResponse));
-      _isLoading = false;
-    });
 
     // Scroll to bottom after response
     _scrollToBottom();
-  }
-
-  String _generateImageResponse(String userMessage) {
-    final languageProvider = Provider.of<LanguageProvider>(
-      context,
-      listen: false,
-    );
-
-    switch (languageProvider.currentLanguage) {
-      case AppLanguage.english:
-        return 'I can see the image you\'ve shared! Based on what I observe, I can help you with farming advice. ${userMessage.isNotEmpty ? "Regarding your question: $userMessage - " : ""}Please let me know what specific information you need about this image.';
-      case AppLanguage.hindi:
-        return 'मैं आपकी साझा की गई तस्वीर देख सकता हूं! जो मैं देख रहा हूं उसके आधार पर, मैं आपको कृषि सलाह दे सकता हूं। ${userMessage.isNotEmpty ? "आपके प्रश्न के बारे में: $userMessage - " : ""}कृपया बताएं कि आपको इस तस्वीर के बारे में क्या जानकारी चाहिए।';
-      case AppLanguage.malayalam:
-        return 'നിങ്ങൾ പങ്കിട്ട ചിത്രം എനിക്ക് കാണാൻ കഴിയും! ഞാൻ നിരീക്ഷിക്കുന്നതിന്റെ അടിസ്ഥാനത്തിൽ, എനിക്ക് നിങ്ങളെ കൃഷി ഉപദേശത്തിൽ സഹായിക്കാൻ കഴിയും। ${userMessage.isNotEmpty ? "നിങ്ങളുടെ ചോദ്യത്തെ കുറിച്ച്: $userMessage - " : ""}ഈ ചിത്രത്തെ കുറിച്ച് നിങ്ങൾക്ക് എന്ത് വിവരങ്ങൾ വേണമെന്ന് ദയവായി എന്നെ അറിയിക്കൂ।';
-    }
-  }
-
-  String _generateMockResponse(String userMessage) {
-    final lowerMessage = userMessage.toLowerCase();
-
-    // Simple keyword-based responses for testing
-    if (lowerMessage.contains('crop') || lowerMessage.contains('plant')) {
-      return 'Great question about crops! The best crops to plant depend on your soil type, climate, and season. What specific information are you looking for?';
-    } else if (lowerMessage.contains('weather') ||
-        lowerMessage.contains('rain')) {
-      return 'Weather is crucial for farming! I can help you understand weather patterns and their impact on your crops. What weather concerns do you have?';
-    } else if (lowerMessage.contains('pest') ||
-        lowerMessage.contains('insect')) {
-      return 'Pest management is important for healthy crops. I can help you identify common pests and suggest organic or chemical control methods. Can you describe the pest issue?';
-    } else if (lowerMessage.contains('fertilizer') ||
-        lowerMessage.contains('nutrient')) {
-      return 'Proper fertilization is key to good yields! I can help you choose the right fertilizers based on your crop and soil conditions. What type of crop are you growing?';
-    } else if (lowerMessage.contains('hello') || lowerMessage.contains('hi')) {
-      return 'Hello there! I\'m here to help with all your farming questions. What would you like to know about agriculture today?';
-    } else {
-      return 'That\'s an interesting question! As your digital farming assistant, I\'m here to help with crops, weather, pests, fertilizers, and more. Could you provide more details about what you\'d like to know?';
-    }
   }
 
   void _scrollToBottom() {
